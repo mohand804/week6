@@ -1,37 +1,42 @@
 import 'package:flutter/material.dart';
 
-mixin PaginationHandler<T extends StatefulWidget> on State<T> {
+mixin PaginationMixin<T extends StatefulWidget> on State<T> {
   final ScrollController scrollController = ScrollController();
+  bool _isLoadingMore = false;
 
+  bool get isLoadingMore => _isLoadingMore;
+  bool get canLoadMore;
   void onLoadMore();
-
-  bool get isLoadingMore;
-
-  bool get hasReachedMax;
-
-  double get paginationThreshold => 200;
 
   @override
   void initState() {
     super.initState();
-    scrollController.addListener(_handleScroll);
+    scrollController.addListener(_onScroll);
   }
 
-  void _handleScroll() {
+  void _onScroll() {
     if (!scrollController.hasClients) return;
-    if (isLoadingMore || hasReachedMax) return;
+    if (_isLoadingMore || !canLoadMore) return;
 
-    final currentPosition = scrollController.position.pixels;
-    final maxScrollExtent = scrollController.position.maxScrollExtent;
+    final threshold = scrollController.position.maxScrollExtent - 200;
+    if (scrollController.position.pixels >= threshold) {
+      _loadMore();
+    }
+  }
 
-    if (currentPosition >= maxScrollExtent - paginationThreshold) {
-      onLoadMore();
+  void _loadMore() {
+    setState(() => _isLoadingMore = true);
+    onLoadMore();
+  }
+
+  void setLoadingComplete() {
+    if (mounted) {
+      setState(() => _isLoadingMore = false);
     }
   }
 
   @override
   void dispose() {
-    scrollController.removeListener(_handleScroll);
     scrollController.dispose();
     super.dispose();
   }
