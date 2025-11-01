@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'movie_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class MovieResponse {
   final int page;
   final List<Movie> results;

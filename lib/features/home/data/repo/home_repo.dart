@@ -12,14 +12,14 @@ class HomeRepo {
 
   Future<ApiResult<MovieResponse>> getPopularMovies({int page = 1}) async {
     try {
-      final cachedMovies = homeCacheService.getCachedMoviesByPage(page);
-      if (cachedMovies != null) {
-        return ApiResult.success(cachedMovies);
-      }
       final response = await apiService.getPopularMovies(page: page);
-      await homeCacheService.cacheItem('popular_movies_$page', response);
+      await homeCacheService.cacheMoviesByPage(page, response);
       return ApiResult.success(response);
     } catch (e) {
+      final cached = homeCacheService.getCachedMoviesByPage(page);
+      if (cached != null) {
+        return ApiResult.success(cached);
+      }
       return ApiResult.failure(ApiErrorHandler.handle(e));
     }
   }

@@ -55,12 +55,12 @@ extension HomeStatePatterns on HomeState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( Loading value)?  loding,TResult Function( Success value)?  success,TResult Function( Error value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( Loading value)?  loading,TResult Function( Success value)?  success,TResult Function( Error value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
-return initial(_that);case Loading() when loding != null:
-return loding(_that);case Success() when success != null:
+return initial(_that);case Loading() when loading != null:
+return loading(_that);case Success() when success != null:
 return success(_that);case Error() when error != null:
 return error(_that);case _:
   return orElse();
@@ -80,12 +80,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( Loading value)  loding,required TResult Function( Success value)  success,required TResult Function( Error value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( Loading value)  loading,required TResult Function( Success value)  success,required TResult Function( Error value)  error,}){
 final _that = this;
 switch (_that) {
 case _Initial():
 return initial(_that);case Loading():
-return loding(_that);case Success():
+return loading(_that);case Success():
 return success(_that);case Error():
 return error(_that);case _:
   throw StateError('Unexpected subclass');
@@ -104,12 +104,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( Loading value)?  loding,TResult? Function( Success value)?  success,TResult? Function( Error value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( Loading value)?  loading,TResult? Function( Success value)?  success,TResult? Function( Error value)?  error,}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
-return initial(_that);case Loading() when loding != null:
-return loding(_that);case Success() when success != null:
+return initial(_that);case Loading() when loading != null:
+return loading(_that);case Success() when success != null:
 return success(_that);case Error() when error != null:
 return error(_that);case _:
   return null;
@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loding,TResult Function( MovieResponse data)?  success,TResult Function( ApiErrorModel error)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Movie> movies,  int currentPage,  int totalPages,  bool isLoadingMore)?  success,TResult Function( ApiErrorModel error)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
-return initial();case Loading() when loding != null:
-return loding();case Success() when success != null:
-return success(_that.data);case Error() when error != null:
+return initial();case Loading() when loading != null:
+return loading();case Success() when success != null:
+return success(_that.movies,_that.currentPage,_that.totalPages,_that.isLoadingMore);case Error() when error != null:
 return error(_that.error);case _:
   return orElse();
 
@@ -152,12 +152,12 @@ return error(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loding,required TResult Function( MovieResponse data)  success,required TResult Function( ApiErrorModel error)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Movie> movies,  int currentPage,  int totalPages,  bool isLoadingMore)  success,required TResult Function( ApiErrorModel error)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case Loading():
-return loding();case Success():
-return success(_that.data);case Error():
+return loading();case Success():
+return success(_that.movies,_that.currentPage,_that.totalPages,_that.isLoadingMore);case Error():
 return error(_that.error);case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +175,12 @@ return error(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loding,TResult? Function( MovieResponse data)?  success,TResult? Function( ApiErrorModel error)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Movie> movies,  int currentPage,  int totalPages,  bool isLoadingMore)?  success,TResult? Function( ApiErrorModel error)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
-return initial();case Loading() when loding != null:
-return loding();case Success() when success != null:
-return success(_that.data);case Error() when error != null:
+return initial();case Loading() when loading != null:
+return loading();case Success() when success != null:
+return success(_that.movies,_that.currentPage,_that.totalPages,_that.isLoadingMore);case Error() when error != null:
 return error(_that.error);case _:
   return null;
 
@@ -244,7 +244,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'HomeState.loding()';
+  return 'HomeState.loading()';
 }
 
 
@@ -257,10 +257,19 @@ String toString() {
 
 
 class Success implements HomeState {
-  const Success(this.data);
+  const Success({required final  List<Movie> movies, required this.currentPage, required this.totalPages, required this.isLoadingMore}): _movies = movies;
   
 
- final  MovieResponse data;
+ final  List<Movie> _movies;
+ List<Movie> get movies {
+  if (_movies is EqualUnmodifiableListView) return _movies;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_movies);
+}
+
+ final  int currentPage;
+ final  int totalPages;
+ final  bool isLoadingMore;
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
@@ -272,16 +281,16 @@ $SuccessCopyWith<Success> get copyWith => _$SuccessCopyWithImpl<Success>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&const DeepCollectionEquality().equals(other._movies, _movies)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_movies),currentPage,totalPages,isLoadingMore);
 
 @override
 String toString() {
-  return 'HomeState.success(data: $data)';
+  return 'HomeState.success(movies: $movies, currentPage: $currentPage, totalPages: $totalPages, isLoadingMore: $isLoadingMore)';
 }
 
 
@@ -292,7 +301,7 @@ abstract mixin class $SuccessCopyWith<$Res> implements $HomeStateCopyWith<$Res> 
   factory $SuccessCopyWith(Success value, $Res Function(Success) _then) = _$SuccessCopyWithImpl;
 @useResult
 $Res call({
- MovieResponse data
+ List<Movie> movies, int currentPage, int totalPages, bool isLoadingMore
 });
 
 
@@ -309,10 +318,13 @@ class _$SuccessCopyWithImpl<$Res>
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? data = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? movies = null,Object? currentPage = null,Object? totalPages = null,Object? isLoadingMore = null,}) {
   return _then(Success(
-null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as MovieResponse,
+movies: null == movies ? _self._movies : movies // ignore: cast_nullable_to_non_nullable
+as List<Movie>,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
+as int,totalPages: null == totalPages ? _self.totalPages : totalPages // ignore: cast_nullable_to_non_nullable
+as int,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

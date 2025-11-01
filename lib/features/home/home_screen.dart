@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:week6/core/helpers/pagination_handler.dart';
-import 'package:week6/features/home/data/model/movie_model.dart';
 import 'package:week6/features/home/logic/cubit/home_cubit.dart';
 import 'package:week6/features/home/logic/cubit/home_state.dart';
 import 'package:week6/features/home/widgets/movies_header.dart';
@@ -14,22 +13,26 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with PaginationHandler {
-  List<Movie> allMovies = [];
-  int totalPages = 1;
+class _HomeScreenState extends State<HomeScreen>
+    with PaginationHandler<HomeScreen> {
+  late final HomeCubit _homeCubit;
 
   @override
   void initState() {
     super.initState();
-    context.read<HomeCubit>().getPopularMovies(page: 1);
+    _homeCubit = context.read<HomeCubit>();
+    _homeCubit.getPopularMovies();
   }
 
   @override
-  bool get hasReachedMax => currentPage >= totalPages;
+  bool get isLoadingMore => _homeCubit.isLoadingMore;
+
+  @override
+  bool get hasReachedMax => !_homeCubit.canLoadMore;
 
   @override
   void onLoadMore() {
-    context.read<HomeCubit>().getPopularMovies(page: currentPage);
+    _homeCubit.loadMoreMovies();
   }
 
   @override
@@ -40,47 +43,41 @@ class _HomeScreenState extends State<HomeScreen> with PaginationHandler {
           children: [
             const MoviesHeader(),
             Expanded(
-              child: BlocConsumer<HomeCubit, HomeState>(
-                listener: (context, state) {
-                  state.maybeWhen(
-                    success: (data) {
-                      if (currentPage == 1) {
-                        allMovies = data.results;
-                      } else {
-                        allMovies.addAll(data.results);
-                      }
-                      totalPages = data.totalPages;
-                      setState(() {
-                        isLoadingMore = false;
-                      });
-                    },
-                    orElse: () {},
-                  );
-                },
+              child: BlocBuilder<HomeCubit, HomeState>(
                 builder: (context, state) {
-                  return state.maybeWhen(
-                    loding: () {
-                      if (allMovies.isEmpty) {
-                        return const Center(child: CircularProgressIndicator());
+                  return state.when(
+                    initial: () => const SizedBox.shrink(),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    success: (movies, currentPage, totalPages, isLoadingMore) {
+                      if (movies.isEmpty) {
+                        return const Center(child: Text('No movies found'));
                       }
                       return MoviesListView(
-                        movies: allMovies,
+                        movies: movies,
                         scrollController: scrollController,
-                        isLoadingMore: true,
+                        isLoadingMore: isLoadingMore,
                       );
                     },
-                    success: (data) => MoviesListView(
-                      movies: allMovies,
-                      scrollController: scrollController,
-                      isLoadingMore: isLoadingMore,
-                    ),
                     error: (error) => Center(
-                      child: Text(
-                        error.message,
-                        style: const TextStyle(color: Colors.red),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            error.message,
+                            style: const TextStyle(color: Colors.red),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.read<HomeCubit>().getPopularMovies();
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
                       ),
                     ),
-                    orElse: () => const SizedBox.shrink(),
                   );
                 },
               ),

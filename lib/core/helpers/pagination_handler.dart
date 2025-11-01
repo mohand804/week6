@@ -2,53 +2,36 @@ import 'package:flutter/material.dart';
 
 mixin PaginationHandler<T extends StatefulWidget> on State<T> {
   final ScrollController scrollController = ScrollController();
-  bool isLoadingMore = false;
-  int currentPage = 1;
 
   void onLoadMore();
+
+  bool get isLoadingMore;
+
   bool get hasReachedMax;
+
+  double get paginationThreshold => 200;
 
   @override
   void initState() {
     super.initState();
-    _setupScrollListener();
+    scrollController.addListener(_handleScroll);
   }
 
-  void _setupScrollListener() {
-    scrollController.addListener(() {
-      if (_shouldLoadMore()) {
-        _loadMore();
-      }
-    });
-  }
+  void _handleScroll() {
+    if (!scrollController.hasClients) return;
+    if (isLoadingMore || hasReachedMax) return;
 
-  bool _shouldLoadMore() {
-    if (isLoadingMore || hasReachedMax) return false;
+    final currentPosition = scrollController.position.pixels;
+    final maxScrollExtent = scrollController.position.maxScrollExtent;
 
-    final threshold = scrollController.position.maxScrollExtent - 200;
-    return scrollController.position.pixels >= threshold;
-  }
-
-  void _loadMore() {
-    if (!isLoadingMore && !hasReachedMax) {
-      setState(() {
-        isLoadingMore = true;
-        currentPage++;
-      });
+    if (currentPosition >= maxScrollExtent - paginationThreshold) {
       onLoadMore();
     }
   }
 
-  void resetPagination() {
-    setState(() {
-      currentPage = 1;
-      isLoadingMore = false;
-    });
-    scrollController.jumpTo(0);
-  }
-
   @override
   void dispose() {
+    scrollController.removeListener(_handleScroll);
     scrollController.dispose();
     super.dispose();
   }

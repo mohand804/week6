@@ -14,26 +14,18 @@ import 'package:week6/features/movei_details/logic/cubit/movie_deatils_cubit.dar
 final getIt = GetIt.instance;
 
 Future<void> setupGetIt() async {
+  Dio dio = DioFactory.getDio();
+  getIt.registerLazySingleton<ApiService>(() => ApiService(dio));
   // Register SharedPreferences (needs async initialization)
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
-
-  // Register Dio
-  getIt.registerLazySingleton<Dio>(() => DioFactory.getDio());
 
   // Register ThemeCubit
   getIt.registerLazySingleton<ThemeCubit>(
     () => ThemeCubit(getIt<SharedPreferences>()),
   );
 
-  // Register ApiService
-  getIt.registerLazySingleton<ApiService>(() => ApiService(getIt<Dio>()));
-
-  // Register Cache Services (must be registered before repos)
   getIt.registerLazySingleton<HomeCacheService>(() => HomeCacheService());
-  getIt.registerLazySingleton<MovieDetailsCacheService>(
-    () => MovieDetailsCacheService(),
-  );
 
   // Register Home Feature
   getIt.registerLazySingleton<HomeRepo>(
@@ -42,9 +34,12 @@ Future<void> setupGetIt() async {
       homeCacheService: getIt<HomeCacheService>(),
     ),
   );
-  getIt.registerLazySingleton<HomeCubit>(() => HomeCubit(getIt<HomeRepo>()));
+  getIt.registerFactory<HomeCubit>(() => HomeCubit(getIt<HomeRepo>()));
 
   // Register Movie Details Feature
+  getIt.registerLazySingleton<MovieDetailsCacheService>(
+    () => MovieDetailsCacheService(),
+  );
   getIt.registerLazySingleton<MovieDetailsRepo>(
     () => MovieDetailsRepo(
       apiService: getIt<ApiService>(),

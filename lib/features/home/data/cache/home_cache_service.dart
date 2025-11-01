@@ -5,6 +5,8 @@ import 'package:week6/features/home/data/model/movie_model.dart';
 
 class HomeCacheService implements HiveCacheService<MovieResponse> {
   static const String moviesBoxName = 'moviesBox';
+  static const String _cachedPagesOrderKey = 'cached_pages_order';
+  static const int _maxCachedPages = 5;
   Box? _box;
 
   static Future<void> init() async {
@@ -45,6 +47,7 @@ class HomeCacheService implements HiveCacheService<MovieResponse> {
   Future<void> clearCachedItem(String key) async {
     final box = _getBox();
     await box.delete(key);
+    await _removeCachedPageKey(box, key);
   }
 
   @override
@@ -72,10 +75,44 @@ class HomeCacheService implements HiveCacheService<MovieResponse> {
   }
 
   Future<void> cacheMoviesByPage(int page, MovieResponse movies) async {
-    await cacheItem('movies_page_$page', movies);
+    final box = _getBox();
+    final key = _pageCacheKey(page);
+    await box.put(key, movies.toJson());
+    await _updateCachedPagesOrder(box, key);
   }
 
   MovieResponse? getCachedMoviesByPage(int page) {
-    return getCachedItem('movies_page_$page');
+    return getCachedItem(_pageCacheKey(page));
+  }
+
+  String _pageCacheKey(int page) => 'movies_page_$page';
+
+  Future<void> _updateCachedPagesOrder(Box box, String key) async {
+    final List<dynamic>? rawOrder = box.get(_cachedPagesOrderKey);
+    final List<String> order = rawOrder != null
+        ? rawOrder.map((dynamic e) => e as String).toList()
+        : <String>[];
+
+    order.remove(key);
+    order.insert(0, key);
+
+    while (order.length > _maxCachedPages) {
+      final String removedKey = order.removeLast();
+      await box.delete(removedKey);
+    }
+
+    await box.put(_cachedPagesOrderKey, order);
+  }
+
+  Future<void> _removeCachedPageKey(Box box, String key) async {
+    final List<dynamic>? rawOrder = box.get(_cachedPagesOrderKey);
+    if (rawOrder == null) return;
+
+    final List<String> order =
+        rawOrder.map((dynamic e) => e as String).toList();
+
+    if (order.remove(key)) {
+      await box.put(_cachedPagesOrderKey, order);
+    }
   }
 }

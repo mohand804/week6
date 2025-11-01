@@ -7,9 +7,9 @@ import 'package:week6/core/routing/routes.dart';
 import 'package:week6/core/theming/theme_cubit.dart';
 import 'package:week6/core/theming/theme_manager.dart';
 
-class Week6 extends StatelessWidget {
+class MovieApp extends StatelessWidget {
   final AppRouter appRouter;
-  const Week6({super.key, required this.appRouter});
+  const MovieApp({super.key, required this.appRouter});
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +18,8 @@ class Week6 extends StatelessWidget {
       builder: (context, child) => BlocProvider(
         create: (context) => getIt<ThemeCubit>(),
         child: BlocBuilder<ThemeCubit, ThemeMode>(
-          builder: (context, state) => MaterialApp(
-            themeMode: state,
+          builder: (context, themeMode) => MaterialApp(
+            themeMode: themeMode,
             debugShowCheckedModeBanner: false,
             theme: ThemeManager.getLightTheme(),
             darkTheme: ThemeManager.getDarkTheme(),

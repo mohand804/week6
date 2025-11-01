@@ -6,7 +6,12 @@ part 'home_state.freezed.dart';
 @freezed
 class HomeState with _$HomeState {
   const factory HomeState.initial() = _Initial;
-  const factory HomeState.loding() = Loading;
-  const factory HomeState.success(MovieResponse data) = Success;
+  const factory HomeState.loading() = Loading;
+  const factory HomeState.success({
+    required List<Movie> movies,
+    required int currentPage,
+    required int totalPages,
+    required bool isLoadingMore,
+  }) = Success;
   const factory HomeState.error(ApiErrorModel error) = Error;
 }

@@ -5,13 +5,14 @@ import 'package:week6/core/di/dependency_injection.dart';
 import 'package:week6/core/routing/app_router.dart';
 import 'package:week6/features/home/data/cache/home_cache_service.dart';
 import 'package:week6/features/movei_details/data/cache/movie_deatils_cache_service.dart';
-import 'package:week6/week6.dart';
+import 'package:week6/movie_app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await HomeCacheService.init();
   await MovieDetailsCacheService.init();
+  WidgetsBinding.instance.platformDispatcher.onMetricsChanged;
   await setupGetIt();
   await SentryFlutter.init((options) {
     options.dsn =
@@ -21,7 +22,6 @@ void main() async {
     options.attachStacktrace = true;
     options.attachScreenshot = true;
     options.attachViewHierarchy = true;
-    options.attachViewHierarchy = true;
   });
-  runApp(Week6(appRouter: AppRouter()));
+  runApp(MovieApp(appRouter: AppRouter()));
 }
