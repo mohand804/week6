@@ -1,43 +1,38 @@
-import 'package:flutter/material.dart';
+class PaginationHandler<T> {
+  List<T> items = [];
+  int currentPage = 0;
+  int? totalPages;
+  bool isLoadingMore = false;
+  bool hasError = false;
 
-mixin PaginationMixin<T extends StatefulWidget> on State<T> {
-  final ScrollController scrollController = ScrollController();
-  bool _isLoadingMore = false;
-
-  bool get isLoadingMore => _isLoadingMore;
-  bool get canLoadMore;
-  void onLoadMore();
-
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(_onScroll);
+  bool get hasMorePages {
+    if (totalPages == null) return true;
+    return currentPage < totalPages!;
   }
 
-  void _onScroll() {
-    if (!scrollController.hasClients) return;
-    if (_isLoadingMore || !canLoadMore) return;
+  bool get canLoadMore => hasMorePages && !isLoadingMore;
 
-    final threshold = scrollController.position.maxScrollExtent - 200;
-    if (scrollController.position.pixels >= threshold) {
-      _loadMore();
-    }
+  void startLoading() {
+    isLoadingMore = true;
+    hasError = false;
   }
 
-  void _loadMore() {
-    setState(() => _isLoadingMore = true);
-    onLoadMore();
+  void addPage(List<T> newItems, int page, int total) {
+    items.addAll(newItems);
+    currentPage = page;
+    totalPages = total;
+    isLoadingMore = false;
+    hasError = false;
   }
 
-  void setLoadingComplete() {
-    if (mounted) {
-      setState(() => _isLoadingMore = false);
-    }
+  void reset() {
+    items = [];
+    currentPage = 0;
+    totalPages = null;
+    isLoadingMore = false;
+    hasError = false;
   }
 
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
+  int get nextPage => currentPage + 1;
 }
+ 

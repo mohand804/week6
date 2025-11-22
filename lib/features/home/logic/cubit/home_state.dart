@@ -9,9 +9,7 @@ class HomeState with _$HomeState {
   const factory HomeState.loading() = Loading;
   const factory HomeState.success({
     required List<Movie> movies,
-    required int currentPage,
-    required int totalPages,
-    required bool isLoadingMore,
+    @Default(false) bool isLoadingMore,
   }) = Success;
   const factory HomeState.error(ApiErrorModel error) = Error;
 }

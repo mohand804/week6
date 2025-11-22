@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Movie> movies,  int currentPage,  int totalPages,  bool isLoadingMore)?  success,TResult Function( ApiErrorModel error)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Movie> movies,  bool isLoadingMore)?  success,TResult Function( ApiErrorModel error)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case Loading() when loading != null:
 return loading();case Success() when success != null:
-return success(_that.movies,_that.currentPage,_that.totalPages,_that.isLoadingMore);case Error() when error != null:
+return success(_that.movies,_that.isLoadingMore);case Error() when error != null:
 return error(_that.error);case _:
   return orElse();
 
@@ -152,12 +152,12 @@ return error(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Movie> movies,  int currentPage,  int totalPages,  bool isLoadingMore)  success,required TResult Function( ApiErrorModel error)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Movie> movies,  bool isLoadingMore)  success,required TResult Function( ApiErrorModel error)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case Loading():
 return loading();case Success():
-return success(_that.movies,_that.currentPage,_that.totalPages,_that.isLoadingMore);case Error():
+return success(_that.movies,_that.isLoadingMore);case Error():
 return error(_that.error);case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +175,12 @@ return error(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Movie> movies,  int currentPage,  int totalPages,  bool isLoadingMore)?  success,TResult? Function( ApiErrorModel error)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Movie> movies,  bool isLoadingMore)?  success,TResult? Function( ApiErrorModel error)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case Loading() when loading != null:
 return loading();case Success() when success != null:
-return success(_that.movies,_that.currentPage,_that.totalPages,_that.isLoadingMore);case Error() when error != null:
+return success(_that.movies,_that.isLoadingMore);case Error() when error != null:
 return error(_that.error);case _:
   return null;
 
@@ -257,7 +257,7 @@ String toString() {
 
 
 class Success implements HomeState {
-  const Success({required final  List<Movie> movies, required this.currentPage, required this.totalPages, required this.isLoadingMore}): _movies = movies;
+  const Success({required final  List<Movie> movies, this.isLoadingMore = false}): _movies = movies;
   
 
  final  List<Movie> _movies;
@@ -267,9 +267,7 @@ class Success implements HomeState {
   return EqualUnmodifiableListView(_movies);
 }
 
- final  int currentPage;
- final  int totalPages;
- final  bool isLoadingMore;
+@JsonKey() final  bool isLoadingMore;
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
@@ -281,16 +279,16 @@ $SuccessCopyWith<Success> get copyWith => _$SuccessCopyWithImpl<Success>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&const DeepCollectionEquality().equals(other._movies, _movies)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&const DeepCollectionEquality().equals(other._movies, _movies)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_movies),currentPage,totalPages,isLoadingMore);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_movies),isLoadingMore);
 
 @override
 String toString() {
-  return 'HomeState.success(movies: $movies, currentPage: $currentPage, totalPages: $totalPages, isLoadingMore: $isLoadingMore)';
+  return 'HomeState.success(movies: $movies, isLoadingMore: $isLoadingMore)';
 }
 
 
@@ -301,7 +299,7 @@ abstract mixin class $SuccessCopyWith<$Res> implements $HomeStateCopyWith<$Res> 
   factory $SuccessCopyWith(Success value, $Res Function(Success) _then) = _$SuccessCopyWithImpl;
 @useResult
 $Res call({
- List<Movie> movies, int currentPage, int totalPages, bool isLoadingMore
+ List<Movie> movies, bool isLoadingMore
 });
 
 
@@ -318,12 +316,10 @@ class _$SuccessCopyWithImpl<$Res>
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? movies = null,Object? currentPage = null,Object? totalPages = null,Object? isLoadingMore = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? movies = null,Object? isLoadingMore = null,}) {
   return _then(Success(
 movies: null == movies ? _self._movies : movies // ignore: cast_nullable_to_non_nullable
-as List<Movie>,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
-as int,totalPages: null == totalPages ? _self.totalPages : totalPages // ignore: cast_nullable_to_non_nullable
-as int,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as List<Movie>,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
